@@ -3,26 +3,31 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
+import { PokemonService } from './pokemon/pokemon.service';
+import { PokemonModule } from './pokemon/pokemon.module';
+import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'soul',
-      password: 'password',
-      database: 'soul',
+      type: 'mysql',
+      host: process.env.DATABASE_HOST,
+      port: 3306,
+      username: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
       entities: [],
       synchronize: true,
-      logging: true,
+      ssl: {
+        rejectUnauthorized: true,
+      },
     }),
-    GraphQLModule.forRoot({
-      autoSchemaFile: 'schema.gql',
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
     }),
-    // PokemonModule,
+    PokemonModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PokemonService],
 })
 export class AppModule {}
